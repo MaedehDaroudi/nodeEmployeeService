@@ -1,12 +1,16 @@
 const ctrl = require("../controllers/rootController")
 
-exports.roots = (req, res) => {
-    console.log("2222222222222222")
+exports.roots =async (req, res) => {
     let result;
-    switch (req.params) {
+    console.log("🚀 ~ file: rootRoutes.js:6 ~ req.path:", req.path)
+    switch (req.path) {
         case "/dataService":
             if (req.method === 'POST') {
-                result = ctrl.dataService(req, res)
+                result = await ctrl.addDataService(req, res)
+                return result
+            }
+            else if (req.method === 'GET') {
+                result=await ctrl.getDataService(req,res)
             }
             break;
     }

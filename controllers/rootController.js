@@ -1,45 +1,58 @@
-const redis = require("../utils/redisConnection")
+const redisServices = require("../utils/redisConnection")
 
-exports.dataService = async (req, res) => {
-    console.log("🚀 ~ req.boody=>", req.body)
-    let userData = await redis.getRedisData(2)
+exports.addDataService = async (req, res) => {
+    req.body=JSON.parse(req.body)
+    let userData = await redisServices.getRedisData(0, 'userData')
     if (userData !== null) {
         const checkId = await userData.find(data => data.id === +req.body.id);
         if (checkId) {
-            res.status(402).json({
+            return {
                 status: "fail",
                 message: "شناسه ی دادهها تکراری است.",
-            });
+            }
         } else {
+            console.log("req.body==>",req.body)
+            console.log("req.body==>",typeof req.body)
+            console.log("req.body.parent==>",req.body.parent)
+            console.log("parent =>", userData.id)
+            console.log("parent =>", req.body.parent)
             const checkParent = await userData.find(
                 data => data.id === +req.body.parent
             );
             if (checkParent) {
                 await Promise.all([
-                    redis.addRedisData(1, 'userData', { id: req.body.id, data: req.body.data }),
-                    redis.addRedisData(2, 'userData', { id: req.body.id, parent: req.body.parent })
+                    redisServices.addRedisData(0, 'userData', { id: req.body.id, data: req.body.data }),
+                    redisServices.addRedisData(1, 'userData', { id: req.body.id, parent: req.body.parent })
                 ])
-                res.status(200).json({
+                return {
                     status: "success",
                     message: "داده ها ذخیره شد.",
-                });
+                }
             } else {
-                res.status(402).json({
+                return {
                     status: "fail",
                     message: "امکان ثبت اطلاعات برای شما وجود ندارد.",
-                });
+                };
             }
         }
-    } else {
-        userData = [];
-        let userData2 = [];
-        userData.push({ id: req.body.id, data: req.body.data });
-        userData2.push({ id: req.body.id, parent: req.body.parent });
-        redisData.saveData(["userData", "userData"], [userData, userData2]);
-        res.status(200).json({
+    }
+    else {
+        await Promise.all([
+            redisServices.addRedisData(0, 'userData', { id: req.body.id, data: req.body.data }),
+            redisServices.addRedisData(1, 'userData', { id: req.body.id, parent: req.body.parent })
+        ])
+        // res.status(200).json({
+        return {
             status: "success",
             message: "داده ها ذخیره شد.",
-        });
+        }
     }
-    // res.end('Hello');
 };
+
+exports.getDataService = async (req, res) => {
+    let userData = await redisServices.getRedisData(0, 'userData')
+    let userData1= await redisServices.getRedisData(1, 'userData')
+    console.log("🚀 ~~ userData =>", userData)
+    console.log("🚀 ~~ userData1 =>", userData1)
+    return userData
+}

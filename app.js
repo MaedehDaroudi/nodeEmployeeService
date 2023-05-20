@@ -6,14 +6,13 @@ const logger = morgan("combined");
 const finalhandler = require("finalhandler");
 
 const rootRoute = require("./routes/rootRoutes")
-console.log("========================")
 const server = http.createServer(async (req, res) => {
   var done = finalhandler(req, res);
   logger(req, res, function (err) {
     if (err) return done(err);
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    res.end("Hello World");
+    // res.end("Hello World");
   });
 
   const { query, pathname } = url.parse(req.url, true);
@@ -25,9 +24,16 @@ const server = http.createServer(async (req, res) => {
   req.body = body;
   req.path = pathname
   req.query = query
-
-  const result = rootRoute.roots(req, res)
-  res.end(result)
+  try {
+    const result = await rootRoute.roots(req, res)
+    console.log("🚀 ~ file: app.js:29 ~ server ~ result:", result)
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(result))
+  }
+  catch (err) {
+    console.log("err=>", err)
+  }
 
 })
 

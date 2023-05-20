@@ -3,8 +3,8 @@ const redisclient = redis.createClient();
 
 
 (async () => {
-    port = '127.0.0.1';
-    host = 6379;
+    host = '127.0.0.1';
+    port = 6379;
     await redisclient.connect(port, host);
 })();
 
@@ -12,9 +12,11 @@ redisclient.on('connect', async () => {
     console.log('redis connected...');
 });
 
+redisclient.on('error', err => console.log('Redis Client Error', err));
+
 exports.getRedisData = async (db, key) => {
-    redisclient.select(db);
-    let data = await redisclient.get(key);
+    await redisclient.select(db);
+    let data = await redisclient.get(`${key}`);
     data = JSON.parse(data)
     return data
 }
@@ -29,6 +31,7 @@ exports.addRedisData = async (db, key, value) => {
         data.push(value);
         redisclient.set(key, JSON.stringify(data));
     }
+    console.log("data added.....")
 }
 
 
