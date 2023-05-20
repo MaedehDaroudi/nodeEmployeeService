@@ -15,6 +15,11 @@ exports.roots = async (req, res) => {
         case "/clear_cache":
             result = await ctrl.clearCache()
             break;
+        default:
+            result = [500, {
+                status: "fail",
+                message: "درخواست معتبر نیست"
+            }]
     }
 
     return result

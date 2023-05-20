@@ -22,12 +22,15 @@ const server = http.createServer(async (req, res) => {
   await req.on('data', chunk => {
     body += chunk.toString();
   });
-  req.body = JSON.parse(body)
+  console.log("method==>",req.method)
+  if (["POST", "PUT", "PATCH"].includes(req.method)) {
+    console.log("body=>",req.body)
+    req.body = JSON.parse(body)
+  }
   req.path = pathname
   req.query = query
   try {
     const result = await rootRoute.roots(req, res)
-    console.log("🚀 ~ file: app.js:30 ~ server ~ result:", result)
     res.statusCode = result[0];
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(result[1]))

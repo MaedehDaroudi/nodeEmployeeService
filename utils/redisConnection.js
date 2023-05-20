@@ -1,4 +1,5 @@
 const redis = require('redis');
+const boom = require("boom")
 const redisclient = redis.createClient();
 
 (async () => {
@@ -12,7 +13,11 @@ redisclient.on('connect', async () => {
     ;
 });
 
-redisclient.on('error', err => console.log('Redis Client Error', err));
+redisclient.on('error', err => {
+    console.log('Redis Client Error', err)
+    boom.badGateway("err")
+}
+);
 
 exports.getRedisData = async (db, key) => {
     await redisclient.select(db);
@@ -40,9 +45,11 @@ exports.addRedisData = async (db, key, value) => {
 exports.editRedisData = async (db, key, value, index) => {
     redisclient.select(db);
     let data = await redisclient.get(key);
-    if (data && data1) {
+    if (data) {
         data = JSON.parse(data)
         data[index] = value
+        await redisclient.set(key, JSON.stringify(data));
+        console.log("data added .....")
     }
 
 }

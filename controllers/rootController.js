@@ -1,7 +1,6 @@
 const redisServices = require("../utils/redisConnection")
 
 exports.addDataService = async (req, res) => {
-    // req.body = JSON.parse(req.body)
     let userData = await redisServices.getRedisData(1, 'userData')
     if (userData !== null) {
         const checkId = await userData.find(data => data.id === +req.body.id);
@@ -49,11 +48,10 @@ exports.addDataService = async (req, res) => {
 exports.getDataService = async (req, res) => {
     let userData = await redisServices.getRedisData(0, 'userData')
     let userData1 = await redisServices.getRedisData(1, 'userData')
-
     let allData = null;
-    if (req.query && req.query.id) {
+    if (userData && userData1 && req.query && req.query.id) {
         const index1 = await userData.findIndex(data => data.id === +req.query.id);
-        if (index1 > 0)
+        if (index1 >= 0)
             allData = { ...userData[index1], ...userData1[index1] }
         else
             return [404, {
@@ -76,23 +74,43 @@ exports.getDataService = async (req, res) => {
     }]
 }
 
-exports.clearCache = () => {
-    return redisServices.clearCache()
+exports.clearCache = async () => {
+    await redisServices.clearCache()
+    return [200, {
+        status: "success",
+        data: "اطلاعات پاک شد."
+    }]
 }
 
 exports.editDataService = async (req, res) => {
+    console.log("req=>", req.body)
     let userData = await redisServices.getRedisData(0, 'userData')
     let userData1 = await redisServices.getRedisData(1, 'userData')
     if (userData && userData1) {
-        const index = await JSON.parse(userData).findIndex(data => data.id === +req.body.id);
-        const index1 = await JSON.parse(userData1).findIndex(data => data.id === +req.body.id);
-        if (index>0 && index1>0)
-        await redisServices.editRedisData()
+        const index = await userData.findIndex(data => data.id === +req.body.id);
+        const index1 = await userData1.findIndex(data => data.id === +req.body.id);
+        if (index >= 0 && index1 >= 0) {
+            console.log("req=>", req.body)
+            await redisServices.editRedisData(0, 'userData', { id: req.body.id, data: req.body.data }, index)
+            await redisServices.editRedisData(1, 'userData', { id: req.body.id, parent: req.body.parent }, index1)
+            return [200, {
+                status: "success",
+                message: "داده ها به روزرسانی شد"
+            }]
+        }
+        else {
+            return [404, {
+                status: "fail",
+                message: "شناسه پیدا نشد"
+            }]
+        }
+    }
+    else {
+        return [404, {
+            status: "fail",
+            message: "شناسه پیدا نشد"
+        }]
     }
 
-    return [404, {
-        status: "fail",
-        message: "شناسه پیدا نشد"
-    }]
-    // let userData = await redisServices.getRedisData(0, 'userData')
+
 }
