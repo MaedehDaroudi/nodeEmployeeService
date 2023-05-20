@@ -16,17 +16,17 @@ const server = http.createServer(async (req, res) => {
     // res.end("Hello World");
   });
 
-  const { query, pathname } = url.parse(req.url, true);  
+  const { query, pathname } = url.parse(req.url, true);
 
   let body = '';
   await req.on('data', chunk => {
     body += chunk.toString();
   });
-  req.body = body;
+  req.body = JSON.parse(body)
   req.path = pathname
   req.query = query
   try {
-    const result = await rootRoute.roots(req, res)    
+    const result = await rootRoute.roots(req, res)
     console.log("🚀 ~ file: app.js:30 ~ server ~ result:", result)
     res.statusCode = result[0];
     res.setHeader('Content-Type', 'application/json');

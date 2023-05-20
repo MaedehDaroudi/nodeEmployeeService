@@ -1,12 +1,12 @@
 const redisServices = require("../utils/redisConnection")
 
 exports.addDataService = async (req, res) => {
-    req.body = JSON.parse(req.body)
+    // req.body = JSON.parse(req.body)
     let userData = await redisServices.getRedisData(1, 'userData')
     if (userData !== null) {
         const checkId = await userData.find(data => data.id === +req.body.id);
         if (checkId) {
-            return [404,{
+            return [404, {
                 status: "fail",
                 message: "شناسه ی دادهها تکراری است.",
             }]
@@ -39,7 +39,7 @@ exports.addDataService = async (req, res) => {
 
         // ])
         // res.status(200).json({
-        return [200,{
+        return [200, {
             status: "success",
             message: "داده ها ذخیره شد.",
         }]
@@ -56,7 +56,7 @@ exports.getDataService = async (req, res) => {
         if (index1 > 0)
             allData = { ...userData[index1], ...userData1[index1] }
         else
-            return [404,{
+            return [404, {
                 status: "fail",
                 message: "شناسه پیدا نشد"
             }]
@@ -70,7 +70,7 @@ exports.getDataService = async (req, res) => {
 
         })
     }
-    return [200,{
+    return [200, {
         status: "success",
         data: allData
     }]
@@ -78,4 +78,21 @@ exports.getDataService = async (req, res) => {
 
 exports.clearCache = () => {
     return redisServices.clearCache()
+}
+
+exports.editDataService = async (req, res) => {
+    let userData = await redisServices.getRedisData(0, 'userData')
+    let userData1 = await redisServices.getRedisData(1, 'userData')
+    if (userData && userData1) {
+        const index = await JSON.parse(userData).findIndex(data => data.id === +req.body.id);
+        const index1 = await JSON.parse(userData1).findIndex(data => data.id === +req.body.id);
+        if (index>0 && index1>0)
+        await redisServices.editRedisData()
+    }
+
+    return [404, {
+        status: "fail",
+        message: "شناسه پیدا نشد"
+    }]
+    // let userData = await redisServices.getRedisData(0, 'userData')
 }

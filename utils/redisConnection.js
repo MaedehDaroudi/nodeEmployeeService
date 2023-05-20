@@ -37,10 +37,13 @@ exports.addRedisData = async (db, key, value) => {
 }
 
 
-exports.editRedisData = async () => {
-
-}
-exports.editDataDb2 = async () => {
+exports.editRedisData = async (db, key, value, index) => {
+    redisclient.select(db);
+    let data = await redisclient.get(key);
+    if (data && data1) {
+        data = JSON.parse(data)
+        data[index] = value
+    }
 
 }
 
