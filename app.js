@@ -3,6 +3,7 @@ const http = require("http");
 const path = require("path");
 const morgan = require("morgan");
 const logger = morgan("combined");
+const querystring = require("querystring")
 const finalhandler = require("finalhandler");
 
 const rootRoute = require("./routes/rootRoutes")
@@ -15,7 +16,7 @@ const server = http.createServer(async (req, res) => {
     // res.end("Hello World");
   });
 
-  const { query, pathname } = url.parse(req.url, true);
+  const { query, pathname } = url.parse(req.url, true);  
 
   let body = '';
   await req.on('data', chunk => {
@@ -25,11 +26,11 @@ const server = http.createServer(async (req, res) => {
   req.path = pathname
   req.query = query
   try {
-    const result = await rootRoute.roots(req, res)
-    console.log("🚀 ~ file: app.js:29 ~ server ~ result:", result)
-    res.statusCode = 200;
+    const result = await rootRoute.roots(req, res)    
+    console.log("🚀 ~ file: app.js:30 ~ server ~ result:", result)
+    res.statusCode = result[0];
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(result))
+    res.end(JSON.stringify(result[1]))
   }
   catch (err) {
     console.log("err=>", err)

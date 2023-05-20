@@ -1,7 +1,6 @@
 const redis = require('redis');
 const redisclient = redis.createClient();
 
-
 (async () => {
     host = '127.0.0.1';
     port = 6379;
@@ -10,13 +9,14 @@ const redisclient = redis.createClient();
 
 redisclient.on('connect', async () => {
     console.log('redis connected...');
+    ;
 });
 
 redisclient.on('error', err => console.log('Redis Client Error', err));
 
 exports.getRedisData = async (db, key) => {
     await redisclient.select(db);
-    let data = await redisclient.get(`${key}`);
+    let data = await redisclient.get(key);
     data = JSON.parse(data)
     return data
 }
@@ -24,14 +24,16 @@ exports.getRedisData = async (db, key) => {
 exports.addRedisData = async (db, key, value) => {
     redisclient.select(db);
     let data = await redisclient.get(key);
-    if (data === null)
-        redisclient.set(key, JSON.stringify([value]));
+    if (data === null) {
+        await redisclient.set(key, JSON.stringify([value]));
+        console.log("data added .....")
+    }
     else {
         data = JSON.parse(data);
         data.push(value);
-        redisclient.set(key, JSON.stringify(data));
+        await redisclient.set(key, JSON.stringify(data));
+        console.log("data added .....")
     }
-    console.log("data added.....")
 }
 
 
@@ -40,4 +42,9 @@ exports.editRedisData = async () => {
 }
 exports.editDataDb2 = async () => {
 
+}
+
+
+exports.clearCache = () => {
+    return redisclient.flushAll()
 }
