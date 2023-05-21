@@ -2,7 +2,7 @@ const ctrl = require("../controllers/rootController")
 
 exports.roots = async (req, res) => {
     let result;
-    
+
     switch (req.path) {
         case "/dataService":
             if (req.method === 'GET')

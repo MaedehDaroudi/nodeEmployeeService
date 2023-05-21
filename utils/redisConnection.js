@@ -1,6 +1,8 @@
 const redis = require('redis');
-const boom = require("boom")
+const boom = require("boom");
+// const { format } = require('morgan');
 const redisclient = redis.createClient();
+let checkConnection = false;
 
 (async () => {
     host = '127.0.0.1';
@@ -9,13 +11,15 @@ const redisclient = redis.createClient();
 })();
 
 redisclient.on('connect', async () => {
+    checkConnection = true
     console.log('redis connected...');
     ;
 });
 
 redisclient.on('error', err => {
+    checkConnection = false
     console.log('Redis Client Error', err)
-    boom.badGateway("err")
+    boom.badRequest("err")
 }
 );
 
@@ -51,7 +55,6 @@ exports.editRedisData = async (db, key, value, index) => {
         await redisclient.set(key, JSON.stringify(data));
         console.log("data added .....")
     }
-
 }
 
 
