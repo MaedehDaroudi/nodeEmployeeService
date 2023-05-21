@@ -13,7 +13,6 @@ exports.Validator = (body) => {
         },
         "required": ["id", "parent", "data"]
     };
-    console.log("v.validate(body, db2Schema)=>", v.validate(body, db2Schema))
     if (v.validate(body, db2Schema).errors.length) {
         return [404, {
             status: "fail",

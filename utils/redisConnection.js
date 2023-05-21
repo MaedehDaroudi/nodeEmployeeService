@@ -1,8 +1,10 @@
+
+
+
 const redis = require('redis');
-const boom = require("boom");
-// const { format } = require('morgan');
 const redisclient = redis.createClient();
-let checkConnection = false;
+let checkConnection;
+
 
 (async () => {
     host = '127.0.0.1';
@@ -11,17 +13,19 @@ let checkConnection = false;
 })();
 
 redisclient.on('connect', async () => {
-    checkConnection = true
+    checkConnection = true    
     console.log('redis connected...');
     ;
 });
 
 redisclient.on('error', err => {
-    checkConnection = false
+    checkConnection = false    
     console.log('Redis Client Error', err)
-    boom.badRequest("err")
+});
+
+exports.checkConnection = () => {
+    return checkConnection
 }
-);
 
 exports.getRedisData = async (db, key) => {
     await redisclient.select(db);
