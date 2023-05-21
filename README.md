@@ -5,4 +5,4 @@ Nodejs employee Services without framework
 npm start
 
 # Install npm
-npm strat
+npm i
