@@ -1,9 +1,8 @@
-
-
-
 const redis = require('redis');
 const redisclient = redis.createClient();
+let endConnection
 let checkConnection;
+let checkConnectionRequest = 0;
 
 
 (async () => {
@@ -13,14 +12,22 @@ let checkConnection;
 })();
 
 redisclient.on('connect', async () => {
-    checkConnection = true    
+    checkConnection = true
+    checkConnectionRequest = 0
     console.log('redis connected...');
     ;
 });
 
 redisclient.on('error', err => {
-    checkConnection = false    
+    checkConnectionRequest += 1
+    checkConnection = false
+    if (checkConnectionRequest >= 5) {
+        console.log("fail.................")
+         checkConnection
+    }
     console.log('Redis Client Error', err)
+    // console.log("🚀 ~ file: redisConnection.js:28 ~ checkConnection:", checkConnection)
+
 });
 
 exports.checkConnection = () => {
@@ -38,12 +45,12 @@ exports.addRedisData = async (db, key, value) => {
     redisclient.select(db);
     let data = await redisclient.get(key);
     if (data === null) {
-        await redisclient.set(key, JSON.stringify([value]));
+        await redisclient.set(key, JSON.stringify({ [value.id]: value }));
         console.log("data added .....")
     }
     else {
         data = JSON.parse(data);
-        data.push(value);
+        data[value.id] = value
         await redisclient.set(key, JSON.stringify(data));
         console.log("data added .....")
     }
@@ -57,10 +64,9 @@ exports.editRedisData = async (db, key, value, index) => {
         data = JSON.parse(data)
         data[index] = value
         await redisclient.set(key, JSON.stringify(data));
-        console.log("data added .....")
+        console.log("data edited .....")
     }
 }
-
 
 exports.clearCache = () => {
     return redisclient.flushAll()

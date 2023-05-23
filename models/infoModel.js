@@ -1,10 +1,5 @@
-
-exports.Validator = (body) => {
-
-    var Validator = require('jsonschema').Validator;
-    var v = new Validator();
-
-    var db2Schema = {
+exports.userAndParentSchema = () => {
+    return {
         "id": "/test",
         "type": "object",
         "properties": {
@@ -13,13 +8,4 @@ exports.Validator = (body) => {
         },
         "required": ["id", "parent", "data"]
     };
-    if (v.validate(body, db2Schema).errors.length) {
-        return [404, {
-            status: "fail",
-            message: v.validate(body, db2Schema).errors
-        }]
-    }
-    return [200, {
-        status: "success",
-    }]
 }
