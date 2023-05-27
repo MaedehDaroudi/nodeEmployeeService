@@ -1,8 +1,7 @@
 const url = require("url");
 const schema = require("./../models/infoModel")
-const infoModel = require("../utils/validator")
+const infoModel = require("../models/validator")
 const redisCOnnection = require("../db/redisConnection");
-const e = require("express");
 
 
 
@@ -23,11 +22,40 @@ exports.requests = async (req, res) => {
 
     const checkConnection = await redisCOnnection.checkConnection()
     if (checkConnection === false) {
-        res.statusCode = 404;
-        return [req, (JSON.stringify({
-            status: "fail",
-            data: "خطای پایگاه داده"
-        }))]
+        try {
+            // const redis = require('redis');
+            // const redisclient = redis.createClient();
+            // const redisConfig = {
+            //     port: parseInt(process.env.REDIS_PORT, 10),
+            //     host: process.env.REDIS_HOST,
+            //     maxRetriesPerRequest: 5,
+            // };
+
+            // (async () => {
+            //     await redisclient.connect(redisConfig);
+            // })();
+
+            // redisclient.on('connect', async () => {
+            //     checkConnection = true
+            //     checkConnectionRequest = 0
+            //     console.log('redis connected...');
+            //     ;
+            // });
+
+            res.statusCode = 404;
+            return [req, (JSON.stringify({
+                status: "fail",
+                data: "خطای پایگاه داده"
+            }))]
+        }
+        catch (err) {
+
+            res.statusCode = 404;
+            return [req, (JSON.stringify({
+                status: "fail",
+                data: "خطای پایگاه داده"
+            }))]
+        }
     }
     req.path = pathname
     req.query = query

@@ -4,11 +4,14 @@ let endConnection
 let checkConnection;
 let checkConnectionRequest = 0;
 
+const redisConfig = {
+    port: parseInt(process.env.REDIS_PORT, 10),
+    host: process.env.REDIS_HOST,
+    maxRetriesPerRequest: 5,
+};
 
 (async () => {
-    host = '127.0.0.1';
-    port = 6379;
-    await redisclient.connect(port, host);
+    await redisclient.connect(redisConfig);
 })();
 
 redisclient.on('connect', async () => {
@@ -21,12 +24,12 @@ redisclient.on('connect', async () => {
 redisclient.on('error', err => {
     checkConnectionRequest += 1
     checkConnection = false
+    console.log("🚀 ~ checkConnectionRequest =>", checkConnectionRequest)
     if (checkConnectionRequest >= 5) {
         console.log("fail.................")
-         checkConnection
+        throw err
     }
-    console.log('Redis Client Error', err)
-    // console.log("🚀 ~ file: redisConnection.js:28 ~ checkConnection:", checkConnection)
+        console.log('Redis Client Error', err)
 
 });
 
