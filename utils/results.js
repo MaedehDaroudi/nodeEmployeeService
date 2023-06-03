@@ -63,6 +63,25 @@ exports.responses = (data) => {
                 status: "fail",
                 message: "درخواست معتبر نیست"
             }
+        },
+        "connectionError": {
+            status: "fail",
+            data: "خطای پایگاه داده"
+        },
+        "validationError": {
+            // "result":data,
+            "statusCode": 404,
+            "result": {
+                status: "fail",
+                data
+            }
+        },
+        "validationSuccess": {
+            "statusCode": 200,
+            "result": {
+                status: "success",
+                message: "OK"
+            }
         }
     }
 }

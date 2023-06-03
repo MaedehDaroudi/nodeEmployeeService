@@ -12,14 +12,12 @@ const server = http.createServer(async (req, res) => {
   });
   // await redisConnect.runRedis()
   let handeler = await requserHandler.requests(req, res)
-  if (handeler[1]) {
-    if (typeof handeler[1] !== 'string')
-      handeler[1] = JSON.stringify(handeler[1])
+  if (handeler.endRes) {
     res.setHeader('Content-Type', 'application/json');
-    res.end(handeler[1])
+    res.end(handeler.result)
   }
   else {
-    req = handeler[0]
+    req = handeler.req
     try {
       const result = await rootRoute(req, res)
       res.statusCode = result['statusCode'];

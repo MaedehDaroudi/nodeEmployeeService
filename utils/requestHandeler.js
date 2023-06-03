@@ -1,4 +1,5 @@
 const url = require("url");
+const result = require("../utils/results")
 const schema = require("./../models/infoModel")
 const infoModel = require("../models/validator")
 const redisCOnnection = require("../db/redisConnection");
@@ -11,16 +12,16 @@ exports.requests = async (req, res) => {
     let body = '';
     await req.on('data', chunk => { body += chunk.toString(); });
 
-    if (["POST", "PUT", "PATCH"].includes(req.method)) {
-        req.body = JSON.parse(body)
-        const res1 = await infoModel.Validator(schema.userAndParentSchema(), req.body)
-
-        if (res1[0] !== 200) {
-            return ([req, res1])
+    if (["POST", "PUT", "PATCH"].includes(req.method)) {        
+        req.body = JSON.parse(body)        
+        const validation = await infoModel.Validator(schema.userAndParentSchema(), req.body)
+        if (validation["statusCode"] !== 200) {
+            res.statusCode = validation["statusCode"];
+            return { req, result: JSON.stringify(validation), endRes: true }
         }
     }
 
-    const checkConnection = await redisCOnnection.checkConnection()
+    const checkConnection = await redisCOnnection.checkConnection()    
     if (checkConnection === false) {
         try {
             // const redis = require('redis');
@@ -40,24 +41,26 @@ exports.requests = async (req, res) => {
             //     checkConnectionRequest = 0
             //     console.log('redis connected...');
             //     ;
-            // });
-
+            // });        
             res.statusCode = 404;
-            return [req, (JSON.stringify({
-                status: "fail",
-                data: "خطای پایگاه داده"
-            }))]
+            return {
+                req,
+                endRes: true,
+                "result": JSON.stringify(result.responses()["connectionError"])
+            }
         }
         catch (err) {
-
             res.statusCode = 404;
-            return [req, (JSON.stringify({
-                status: "fail",
-                data: "خطای پایگاه داده"
-            }))]
+            return {
+                req,
+                endRes: true,
+                "result": JSON.stringify(result.responses()["connectionError"])
+            }
         }
     }
     req.path = pathname
     req.query = query
-    return [req, endRes]
+    return {
+        req, endRes
+    }
 }
