@@ -3,8 +3,8 @@ exports.userAndParentSchema = () => {
         "id": "/test",
         "type": "object",
         "properties": {
-            "id": { "type": "number" },
-            "parent": { "type": "number" },
+            "id": { "type": "string" },
+            "parent": { "type": "string" },
         },
         "required": ["id", "parent", "data"]
     };

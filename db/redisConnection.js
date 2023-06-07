@@ -1,4 +1,5 @@
 const redis = require('redis');
+const result = require("../utils/results")
 const redisclient = redis.createClient();
 let endConnection
 let checkConnection;
@@ -24,12 +25,11 @@ redisclient.on('connect', async () => {
 redisclient.on('error', err => {
     checkConnectionRequest += 1
     checkConnection = false
-    console.log("🚀 ~ checkConnectionRequest =>", checkConnectionRequest)
     if (checkConnectionRequest >= 5) {
         console.log("fail.................")
         throw err
     }
-        console.log('Redis Client Error', err)
+    console.log('Redis Client Error', err)
 
 });
 
@@ -60,14 +60,18 @@ exports.addRedisData = async (db, key, value) => {
 }
 
 
-exports.editRedisData = async (db, key, value, index) => {
+exports.editRedisData = async (db, key, value, index, parent) => {
     redisclient.select(db);
     let data = await redisclient.get(key);
     if (data) {
         data = JSON.parse(data)
-        data[index] = value
-        await redisclient.set(key, JSON.stringify(data));
-        console.log("data edited .....")
+        if ((parent && data[index].parent === parent) || (!parent)) {
+            data[index] = value
+            await redisclient.set(key, JSON.stringify(data));
+            return 1
+        }
+        else
+            return 0
     }
 }
 

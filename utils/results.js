@@ -82,6 +82,14 @@ exports.responses = (data) => {
                 status: "success",
                 message: "OK"
             }
+        },
+        "accessDeniedParent": {
+            "statusCode": 403,
+            "result": {
+                status: "fail",
+                message: " شما امکان ویرایش اطلاعات این کارمند را ندارید.",
+
+            },
         }
     }
 }
