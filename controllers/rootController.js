@@ -17,7 +17,7 @@ exports.getDataService = async (req, res) => {
             else
                 return responses["notFoundId"]
         }
-        if (req.query && req.query.parent && userData !== null) {
+        else if (req.query && req.query.parent && userData !== null) {
             let result = []
             Object.values(parentData).map(data => {
                 if (data.parent == req.query.parent)
